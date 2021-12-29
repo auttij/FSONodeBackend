@@ -9,13 +9,14 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf build && cd ../FullStackOpen/osa2/puhelinluettelo/ && npm run build && cp -r build ../../../FSONodeBackend",
     "deploy": "git push heroku main",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",    
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push && npm run deploy",
     "logs:prod": "npx heroku logs --tail"
   },
   "author": "Juhana Autti",
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.2",
+    "mongoose": "^6.1.4",
     "morgan": "^1.10.0"
   },
   "devDependencies": {
