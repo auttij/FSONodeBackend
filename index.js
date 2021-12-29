@@ -1,13 +1,9 @@
 require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
-const { response } = require('express')
 const Person = require('./models/person')
 
 const app = express()
-
-const password = process.argv[2]
-
 
 app.use(express.static('build'))
 app.use(express.json())
@@ -16,14 +12,14 @@ morgan.token('body', req => {
 	return JSON.stringify(req.body)
 })
 app.use(morgan('tiny', {
-	skip: function (req, res) { return req.method === "POST"}
+	skip: function (req) { return req.method === 'POST'}
 }))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body', {
-	skip: function (req, res) { return req.method !== "POST"}
+	skip: function (req) { return req.method !== 'POST'}
 }))
 
 app.get('/info', (req, res) => {
-	const date_ob = new Date();
+	const date_ob = new Date()
 	Person.find({}).then(persons => {
 		const message = `<p>Phonebook has info for ${persons.length} people</p><p>${date_ob}</p>`
 		res.send(message)
@@ -59,16 +55,16 @@ app.post('/api/persons', (request, response, next) => {
 	person.save().then(savedPerson => {
 		response.json(savedPerson)
 	})
-	.catch(error => next(error))
+		.catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
 	const body = request.body
 
-	Person.findByIdAndUpdate(request.params.id, {$set: {
+	Person.findByIdAndUpdate(request.params.id, { $set: {
 		name: body.name,
 		number: body.number
-	}}, { new: true, runValidators: true })
+	} }, { new: true, runValidators: true })
 		.then(updatedPerson => {
 			response.json(updatedPerson)
 		})
@@ -77,7 +73,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
 	Person.findByIdAndRemove(request.params.id)
-		.then(result => {
+		.then(function () {
 			response.status(204).end()
 		})
 		.catch(error => next(error))
