@@ -8,18 +8,19 @@ const app = express()
 
 const password = process.argv[2]
 
+
+app.use(express.static('build'))
+app.use(express.json())
+
 morgan.token('body', req => {
 	return JSON.stringify(req.body)
 })
-
 app.use(morgan('tiny', {
 	skip: function (req, res) { return req.method === "POST"}
 }))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body', {
 	skip: function (req, res) { return req.method !== "POST"}
 }))
-app.use(express.json())
-app.use(express.static('build'))
 
 persons = [
 	{
