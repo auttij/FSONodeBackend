@@ -19,9 +19,7 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema)
 
-const args = process.argv
-
-if (args.length == 5) {
+if (process.argv == 5) {
 	const person = new Person({
 		name: args[3],
 		number: args[4]

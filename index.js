@@ -1,7 +1,12 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
+const { response } = require('express')
+const Person = require('./models/person')
 
 const app = express()
+
+const password = process.argv[2]
 
 morgan.token('body', req => {
 	return JSON.stringify(req.body)
@@ -47,7 +52,9 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-	res.json(persons)
+	Person.find({}).then(persons => {
+		res.json(persons)
+	})
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -74,22 +81,21 @@ app.post('/api/persons', (request, response) => {
 		})
 	}
 
-	const foundPerson = persons.find(person => person.name === body.name)
-	if (foundPerson) {
-		return response.status(400).json({
-			error: 'name must be unique'
-		})
-	}
+	// const foundPerson = persons.find(person => person.name === body.name)
+	// if (foundPerson) {
+	// 	return response.status(400).json({
+	// 		error: 'name must be unique'
+	// 	})
+	// }
 
-	const person = {
+	const person = new Person({
 		name: body.name,
-		number: body.number,
-		id: generateId(),
-	}
+		number: body.number
+	})
 
-	persons = persons.concat(person)
-
-	response.json(person)
+	person.save().then(savedPerson => {
+		response.json(savedPerson)
+	})
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -105,7 +111,7 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`)
 })
