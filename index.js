@@ -46,10 +46,11 @@ persons = [
 ]
 
 app.get('/info', (req, res) => {
-	const count = persons.length
 	const date_ob = new Date();
-	const message = `<p>Phonebook has info for ${count} people</p><p>${date_ob}</p>`
-	res.send(message)
+	Person.find({}).then(persons => {
+		const message = `<p>Phonebook has info for ${persons.length} people</p><p>${date_ob}</p>`
+		res.send(message)
+	})
 })
 
 app.get('/api/persons', (req, res) => {
@@ -58,20 +59,17 @@ app.get('/api/persons', (req, res) => {
 	})
 })
 
-app.get('/api/persons/:id', (request, response) => {
-	const id = Number(request.params.id)
-	const person = persons.find(persons => persons.id === id)
-	
-	if (person) {
-		response.json(person)
-	} else {
-		response.status(404).end()
-	}
+app.get('/api/persons/:id', (request, response, next) => {
+	Person.findById(request.params.id)
+		.then(person => {
+			if (person) {
+				response.json(person)
+			} else {
+				response.status(404).end()
+			}
+		})
+		.catch(error => next(error))
 })
-
-const generateId = () => {
-	return Math.round(Math.random() * 2147483646)
-}
 
 app.post('/api/persons', (request, response) => {
 	const body = request.body
@@ -101,14 +99,12 @@ app.post('/api/persons', (request, response) => {
 
 app.put('/api/persons/:id', (request, response, next) => {
 	const body = request.body
-	
-	console.log("id", request.params.id)
+
 	Person.findByIdAndUpdate(request.params.id, {$set: {
 		name: body.name,
 		number: body.number
 	}}, { new: true })
 		.then(updatedPerson => {
-			console.log("updated person", updatedPerson)
 			response.json(updatedPerson)
 		})
 		.catch(error => next(error))
